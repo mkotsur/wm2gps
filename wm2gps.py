@@ -1,9 +1,19 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 import xml.etree.ElementTree as ET
 import urllib, sys, os
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)) + "/gpxpy")
 
 import gpxpy, gpxpy.gpx
+
+symbols = (u"абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
+           u"abvgdee*zijklmnoprstufhс4ww'y'euaABVGDEE*ZIJKLMNOPRSTUFHС4WW'Y'EUA")
+
+tr = {ord(a):ord(b) for a, b in zip(*symbols)}
+
+
 
 
 url = "http://api.wikimapia.org/?function=box&bbox=" + sys.argv[1] + "&key=225F1176-F8C948A8-9334FE28-F51181B6-17749F78-D35641D3-789AD3AA-D7D26C75&count=100&disable=polygon&language=en"
@@ -17,7 +27,7 @@ while (thereArePlaces):
     
     url = url + "&page=" + str(page)
     
-    xmlContent = urllib.urlopen(url, 'r').read()
+    xmlContent = urllib.request.urlopen(url).read()
     tree = ET.fromstring(xmlContent)
 
     
@@ -26,8 +36,8 @@ while (thereArePlaces):
 
     for place in places:
         location = place.find('location')
-        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(location.find('lat').text, location.find("lon").text, name = place.find('name').text))
+        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(location.find('lat').text, location.find("lon").text, name = place.find('name').text.translate(tr)))
         
     page = page + 1
   
-print gpx.to_xml()
+print (gpx.to_xml())
